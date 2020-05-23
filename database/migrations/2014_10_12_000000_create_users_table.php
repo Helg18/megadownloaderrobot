@@ -15,7 +15,12 @@ class CreateUsersTable extends Migration
     {
         Schema::create('users', function (Blueprint $table) {
             $table->id();
-            $table->string('name');
+            $table->string('telegram_id')->unique();
+            $table->boolean('is_bot')->default(false);
+            $table->string('first_name');
+            $table->string('last_name');
+            $table->string('username');
+            $table->string('language_code');
             $table->string('email')->unique();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
