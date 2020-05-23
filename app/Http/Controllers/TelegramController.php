@@ -3,10 +3,17 @@ namespace App\Http\Controllers;
 
 use App\Objects\Update;
 use App\Repositories\UserRepository;
+use App\Services\MegaDownloaderService;
+use Illuminate\Support\Facades\Log;
 use Telegram\Bot\Laravel\Facades\Telegram;
 
 class TelegramController extends Controller
 {
+    /**
+     * @var MegaDownloaderService
+     */
+    private MegaDownloaderService $megaDownloaderService;
+
     /**
      * @var UserRepository
      */
@@ -17,9 +24,11 @@ class TelegramController extends Controller
      *
      * @param UserRepository $userRepository
      */
-    public function __construct(UserRepository $userRepository)
+    public function __construct(MegaDownloaderService $megaDownloaderService,
+                                UserRepository $userRepository)
     {
         $this->userRepository = $userRepository;
+        $this->megaDownloaderService = $megaDownloaderService;
     }
 
     public function index() {
@@ -33,6 +42,27 @@ class TelegramController extends Controller
         self::createOrValidateUser($update);
 
         // Process Update
+        try {
+            // Download from mega
+            if (!empty($update->getText())) {
+                $this->megaDownloaderService->download($update->getText());
+            } else
+
+            // Send animated emoji
+            if (empty($update->getEmoji())) {
+                Telegram::sendDice([
+                    'chat_id' => $update->getChatId(),
+                    'emoji' => $update->getEmoji()
+                ]);
+            }
+        } catch (\Exception $e) {
+            Log::error($e->getCode() ." | ". $e->getMessage());
+            Telegram::sendMessage([
+                'chat_id' => $update->getChatId(),
+                'text' => $e->getCode() ." | ". $e->getMessage()
+            ]);
+        }
+
         // Response update processed
 
     }

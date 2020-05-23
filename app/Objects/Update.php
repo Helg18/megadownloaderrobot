@@ -24,7 +24,7 @@ class Update
             private string $chat_username;
             private string $type;
         private $date;
-        private string $text;
+        private string $text = '';
         private Collection $entities;
             private int $offset;
             private int $length;
