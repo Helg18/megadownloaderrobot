@@ -4,4 +4,4 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', function () {
     return view('welcome');
 });
-Route::get('/XVbBZt599dEPnKaYOfCL/bot', 'TelegramController@index');
+Route::get('/LuTsh9EniT4fCcOnntMHpWm7BxlIY8Ku/webhook', 'TelegramController@index');

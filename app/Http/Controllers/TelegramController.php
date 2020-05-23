@@ -35,7 +35,7 @@ class TelegramController extends Controller
 
     public function index() {
         // Get Update
-        $msg = collect(Telegram::getUpdates())->last();
+        $msg = Telegram::getWebhookUpdates();
 
         // Set update Object
         $update = new Update($msg);
@@ -52,7 +52,7 @@ class TelegramController extends Controller
             } else
 
             // Send animated emoji
-            if (empty($update->getEmoji())) {
+            if (!empty($update->getEmoji())) {
                 Telegram::sendDice([
                     'chat_id' => $update->getChatId(),
                     'emoji' => $update->getEmoji()
