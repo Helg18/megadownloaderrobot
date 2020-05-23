@@ -36,4 +36,10 @@ class User extends Authenticatable
     protected $casts = [
         'email_verified_at' => 'datetime',
     ];
+
+    public function scopeOfTelegramID($query, $telegram_id)
+    {
+        return !$telegram_id ? $query : $query->where('users.telegram_id', '=', $telegram_id);
+    }
+
 }
