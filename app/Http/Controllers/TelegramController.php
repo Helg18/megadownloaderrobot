@@ -102,7 +102,8 @@ class TelegramController extends Controller
         $filename = collect(explode('storage/', $path))->last();
         Telegram::sendDocument([
             'chat_id' => $update->getChatId(),
-            'document' => InputFile::create($path,$filename)
+            'document' => InputFile::create($path,$filename),
+            'caption' => $filename
         ]);
     }
 }
