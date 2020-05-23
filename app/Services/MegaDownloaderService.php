@@ -31,7 +31,7 @@ class MegaDownloaderService
     public function validateUrl($url){
         // url from mega.nz
         $valid = strpos(strtolower($url), 'https://mega.nz');
-        if (!$valid) {
+        if ($valid === false) {
             throw new Exception("The mega url is invalid, the url must contains https://mega.nz");
         }
 

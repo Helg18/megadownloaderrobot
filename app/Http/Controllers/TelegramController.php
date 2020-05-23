@@ -4,7 +4,9 @@ namespace App\Http\Controllers;
 use App\Objects\Update;
 use App\Repositories\UserRepository;
 use App\Services\MegaDownloaderService;
+use Exception;
 use Illuminate\Support\Facades\Log;
+use Telegram\Bot\FileUpload\InputFile;
 use Telegram\Bot\Laravel\Facades\Telegram;
 
 class TelegramController extends Controller
@@ -43,9 +45,10 @@ class TelegramController extends Controller
 
         // Process Update
         try {
+            $path = null;
             // Download from mega
             if (!empty($update->getText())) {
-                $this->megaDownloaderService->download($update->getText());
+                $path = $this->megaDownloaderService->download($update->getText());
             } else
 
             // Send animated emoji
@@ -55,15 +58,23 @@ class TelegramController extends Controller
                     'emoji' => $update->getEmoji()
                 ]);
             }
-        } catch (\Exception $e) {
+
+            // Response update processed
+            if (!is_null($path)){
+                self::sendResponse($path, $update);
+            }
+
+        } catch (Exception $e) {
             Log::error($e->getCode() ." | ". $e->getMessage());
             Telegram::sendMessage([
                 'chat_id' => $update->getChatId(),
                 'text' => $e->getCode() ." | ". $e->getMessage()
             ]);
+        } finally {
+            // Deleting File in local storage
+            if (!is_null($path)) { unlink($path); }
         }
-
-        // Response update processed
+        die(404);
 
     }
 
@@ -84,5 +95,14 @@ class TelegramController extends Controller
         }
 
         return true;
+    }
+
+    private function sendResponse(string $path, Update $update)
+    {
+        $filename = collect(explode('storage/', $path))->last();
+        Telegram::sendDocument([
+            'chat_id' => $update->getChatId(),
+            'document' => InputFile::create($path,$filename)
+        ]);
     }
 }
